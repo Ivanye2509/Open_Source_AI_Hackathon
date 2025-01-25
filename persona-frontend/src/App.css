@@ -1,131 +1,53 @@
-.App {
-  text-align: center;
-}
-
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
-
-.App-link {
-  color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-
 /* App.css */
-
 body {
   font-family: Arial, sans-serif;
-  background-color: #f9f9f9;
-  margin: 0;
-  padding: 0;
+  background-color: #121212; /* Dark background for the entire page */
+  color: #ffffff; /* Default text color */
 }
 
-.chat-window {
-  width: 400px;
-  height: 600px;
-  margin: 50px auto;
-  display: flex;
-  flex-direction: column;
-  border: 1px solid #ccc;
-  border-radius: 10px;
-  background-color: #fff;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.chat-header {
-  padding: 10px 15px;
-  background-color: #0078d7;
-  color: white;
-  text-align: center;
-  border-radius: 10px 10px 0 0;
-}
-
+/* Ensure the messages container takes up available space */
 .messages-container {
-  flex: 1;
-  padding: 10px;
+  flex-grow: 1;
   overflow-y: auto;
-}
-
-.message {
-  margin-bottom: 10px;
-  display: flex;
-  flex-direction: column;
-}
-
-.message.you {
-  align-items: flex-end;
-}
-
-.message.bot {
-  align-items: flex-start;
-}
-
-.message-sender {
-  font-weight: bold;
-}
-
-.message-text {
-  background: #e0e0e0;
-  border-radius: 10px;
-  padding: 8px 12px;
-  max-width: 70%;
-}
-
-.message.you .message-text {
-  background: #0078d7;
-  color: white;
-}
-
-.input-container {
-  display: flex;
   padding: 10px;
-  border-top: 1px solid #ccc;
 }
 
-.chat-input {
-  flex: 1;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  margin-right: 10px;
+/* Customize scrollbar */
+.messages-container::-webkit-scrollbar {
+  width: 8px;
 }
 
-.send-button {
-  padding: 10px 20px;
+.messages-container::-webkit-scrollbar-track {
+  background: #2c2c2c; /* Dark scrollbar track */
+}
+
+.messages-container::-webkit-scrollbar-thumb {
+  background: #555; /* Dark scrollbar thumb */
+  border-radius: 4px;
+}
+
+.messages-container::-webkit-scrollbar-thumb:hover {
+  background: #777; /* Lighter scrollbar thumb on hover */
+}
+
+/* Input field styling */
+.form-control {
+  background-color: #1e1e1e !important; /* Dark input background */
+  color: #ffffff !important; /* Light text color */
+  border: 1px solid #444 !important; /* Dark border */
+}
+
+.form-control:focus {
+  border-color: #666 !important; /* Lighter border on focus */
+  box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.1) !important; /* Subtle focus glow */
+}
+
+/* Button styling */
+.btn-primary {
+  background-color: #0d6efd; /* Bootstrap primary blue */
   border: none;
-  background-color: #0078d7;
-  color: white;
-  border-radius: 5px;
-  cursor: pointer;
 }
 
-.send-button:hover {
-  background-color: #005bb5;
+.btn-primary:hover {
+  background-color: #0b5ed7; /* Slightly darker blue on hover */
 }
