@@ -1,6 +1,8 @@
-# Open_Source_AI_Hackathon
+# RAG-based Persona Chatbot 🤖
 
-## System Architecture
+> A Retrieval-Augmented Generation system that learns and mimics personal communication styles from chat history.
+
+## 🏗 System Architecture
 
 ```mermaid
 graph TD
@@ -32,23 +34,44 @@ graph TD
         PS --> RG
         PP --> RG
     end
-
-    subgraph Response Pipeline
-        RG --> RM[Response Matching]
-        RM --> EX[Exact Match]
-        RM --> SM[Similar Match]
-        EX --> FR[Final Response]
-        SM --> FR
-    end
 ```
 
-## To run
-### 1. Save your chat data in human_chat.txt
-### 2. Install requirements:
- pip install gradio langchain chromadb tiktoken
-### 3. Set your OpenAI API key:
+## ✨ Features
+    
+🧠 Intelligent Persona Analysis
 
- export OPENAI_API_KEY="your-api-key"
-### 4. Run the chatbot:
+- Extracts personality traits
+- Learns communication style
+- Identifies common phrases
+- Maps topic interests
 
- python persona_chatbot.py
+🎯 Context-Aware Responses
+
+- RAG-powered generation
+- Historical context matching
+- Style-consistent replies
+- Exact response matching
+
+## 🚀 Quick Start
+Prerequisites
+```
+python -m venv venv
+.\venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+Setup
+1. Set OpenAI API key
+```
+set OPENAI_API_KEY=your-api-key
+```
+
+2. Run application
+```
+python app.py
+```
+3. Access interface
+
+- Open browser to http://localhost:5000
+- Upload chat history file
+- Start conversation
