@@ -13,14 +13,6 @@ MODEL_NAME = "gpt-4"
 TEMPERATURE = 0.7
 MAX_HISTORY = 100
 
-# Constants
-DATA_FILE = "human_chat.txt"
-PERSIST_DIR = "./human1_db"
-TARGET_USER = "Human 1"
-MODEL_NAME = "gpt-4"
-TEMPERATURE = 0.7
-MAX_HISTORY = 100
-
 # Initialize models
 try:
     embeddings = OpenAIEmbeddings()
@@ -29,6 +21,9 @@ except Exception as e:
     raise Exception(f"Failed to initialize models: {str(e)}")
 
 def parse_chat_data(file_path: str) -> List[Document]:
+    documents = []
+    current_conversation = []
+    
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
             lines = f.readlines()
@@ -36,17 +31,22 @@ def parse_chat_data(file_path: str) -> List[Document]:
         with open(file_path, 'r', encoding='latin-1') as f:
             lines = f.readlines()
     
-    documents = []
     for line in lines:
-        if line.startswith(TARGET_USER):
-            try:
-                _, message = line.split(":", 1)
-                documents.append(Document(
-                    page_content=message.strip(),
-                    metadata={"speaker": TARGET_USER}
-                ))
-            except ValueError:
-                continue
+        if line.strip():
+            if "Human 2:" in line or "Human 1:" in line:
+                speaker, message = line.split(":", 1)
+                current_conversation.append((speaker.strip(), message.strip()))
+                
+                if len(current_conversation) >= 2:
+                    if current_conversation[-2][0] == "Human 2" and current_conversation[-1][0] == TARGET_USER:
+                        documents.append(Document(
+                            page_content=f"Question: {current_conversation[-2][1]}\nAnswer: {current_conversation[-1][1]}",
+                            metadata={
+                                "question": current_conversation[-2][1],
+                                "answer": current_conversation[-1][1],
+                                "speaker": TARGET_USER
+                            }
+                        ))
     return documents
 
 def analyze_persona(docs: List[Document]) -> Dict[str, Any]:
@@ -84,39 +84,59 @@ class PersonaChatbot:
         self.vector_store = initialize_retriever()
         self.persona = analyze_persona(parse_chat_data(DATA_FILE))
         self.history: List[str] = []
+        self.last_context: str = ""  # Add context tracking
+    
+    def get_last_context(self) -> str:
+        """Return the last retrieved context"""
+        return self.last_context
+    
+    def clear_context(self) -> None:
+        """Clear the stored context"""
+        self.last_context = ""
     
     def generate_response(self, query: str) -> str:
-        # Trim history if too long
         if len(self.history) > MAX_HISTORY:
             self.history = self.history[-MAX_HISTORY:]
 
-        # Retrieve relevant context
-        retrieved = self.vector_store.similarity_search(query, k=2)
-        context = "\n".join([doc.page_content for doc in retrieved])
+        # Search for exact or similar questions
+        retrieved = self.vector_store.similarity_search(
+            query,
+            k=3
+        )
         
-        # Build persona prompt
-        prompt = f"""Respond as {TARGET_USER} would, using this persona:
-        Traits: {', '.join(self.persona['traits'])}
-        Style: {self.persona['style']}
-        Common Phrases: {', '.join(self.persona['phrases'][:3])}
+        # Extract relevant Q&A pairs
+        relevant_contexts = []
+        exact_match = None
         
-        Context:
-        {context}
+        for doc in retrieved:
+            if doc.metadata.get("question", "").lower().strip() == query.lower().strip():
+                exact_match = doc.metadata.get("answer")
+                break
+            relevant_contexts.append(doc.page_content)
         
-        Conversation History:
-        {"/n".join(self.history[-3:])}
+        self.last_context = "\n".join(relevant_contexts)
         
-        User: {query}
-        {TARGET_USER}:"""
-        
-        try:
+        if exact_match:
+            response = exact_match
+        else:
+            prompt = f"""You are Human 1. ONLY use the provided examples to respond.
+            If no relevant examples exist, use the personality traits and style.
+            DO NOT make up information not present in the context.
+
+            Human 1's Traits: {', '.join(self.persona['traits'])}
+            Style: {self.persona['style']}
+            
+            Relevant Examples:
+            {self.last_context}
+            
+            Question: {query}
+            Answer:"""
+            
             response = llm.invoke(prompt).content
-            self.history.append(f"User: {query}")
-            self.history.append(f"{TARGET_USER}: {response}")
-            return response
-        except Exception as e:
-            print(f"Error generating response: {str(e)}")
-            return "I'm having trouble responding right now."
+        
+        self.history.append(f"User: {query}")
+        self.history.append(f"Human 1: {response}")
+        return response
 
 def create_ui() -> gr.Blocks:
     chatbot = PersonaChatbot()

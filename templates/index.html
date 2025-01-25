@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Persona Chatbot</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <style>
+        #chat-container { max-width: 1000px; margin: 0 auto; padding: 20px; }
+        #chat-interface { display: flex; gap: 20px; }
+        #chat-main { flex: 2; }
+        #persona-info { flex: 1; background: #f8f9fa; padding: 15px; border-radius: 5px; }
+        #messages { height: 400px; overflow-y: auto; border: 1px solid #ccc; margin: 10px 0; }
+        .message { padding: 10px; margin: 5px; border-radius: 5px; }
+        .user { background-color: #e3f2fd; }
+        .bot { background-color: #f5f5f5; }
+        .context { font-size: 0.8em; color: #666; margin-top: 5px; }
+        .loading { text-align: center; padding: 10px; }
+    </style>
+</head>
+<body>
+    <div id="chat-container">
+        <h1>Persona Chatbot</h1>
+        <form id="upload-form">
+            <input type="file" id="chat-file" accept=".txt">
+            <button type="submit">Upload & Analyze</button>
+        </form>
+        <div id="chat-interface">
+            <div id="chat-main">
+                <div id="messages"></div>
+                <form id="chat-form">
+                    <input type="text" id="message" placeholder="Type your message...">
+                    <button type="submit">Send</button>
+                </form>
+            </div>
+            <div id="persona-info">
+                <h3>Persona Analysis</h3>
+                <div id="traits"></div>
+                <div id="style"></div>
+                <div id="phrases"></div>
+                <div id="interests"></div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const socket = io();
+        const chatForm = document.getElementById('chat-form');
+        const uploadForm = document.getElementById('upload-form');
+        const messages = document.getElementById('messages');
+
+        function showLoading() {
+            const div = document.createElement('div');
+            div.className = 'loading';
+            div.textContent = 'Analyzing...';
+            messages.appendChild(div);
+        }
+
+        uploadForm.onsubmit = async (e) => {
+            e.preventDefault();
+            showLoading();
+            const formData = new FormData();
+            formData.append('file', document.getElementById('chat-file').files[0]);
+            
+            try {
+                const response = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await response.json();
+                if (result.success) {
+                    updatePersonaInfo(result.persona);
+                    messages.innerHTML = '';
+                    addMessage('bot', 'Chat data analyzed! I am ready to chat as Human 1.');
+                }
+            } catch (error) {
+                alert('Error uploading file: ' + error);
+            }
+        };
+
+        function updatePersonaInfo(persona) {
+            document.getElementById('traits').innerHTML = `
+                <h4>Traits</h4>
+                <ul>${persona.traits.map(t => `<li>${t}</li>`).join('')}</ul>
+            `;
+            document.getElementById('style').innerHTML = `
+                <h4>Communication Style</h4>
+                <p>${persona.style}</p>
+            `;
+            document.getElementById('phrases').innerHTML = `
+                <h4>Common Phrases</h4>
+                <ul>${persona.phrases.map(p => `<li>${p}</li>`).join('')}</ul>
+            `;
+            document.getElementById('interests').innerHTML = `
+                <h4>Interests</h4>
+                <ul>${persona.interests.map(i => `<li>${i}</li>`).join('')}</ul>
+            `;
+        }
+
+        chatForm.onsubmit = (e) => {
+            e.preventDefault();
+            const messageInput = document.getElementById('message');
+            if (!messageInput.value.trim()) return;
+            
+            socket.emit('message', {message: messageInput.value});
+            addMessage('user', messageInput.value);
+            messageInput.value = '';
+        };
+
+        socket.on('response', (data) => {
+            if (data.error) {
+                alert(data.error);
+            } else {
+                addMessage('bot', data.message, data.context);
+            }
+        });
+
+        function addMessage(type, text, context = '') {
+            const div = document.createElement('div');
+            div.className = `message ${type}`;
+            div.textContent = text;
+            if (context) {
+                const contextDiv = document.createElement('div');
+                contextDiv.className = 'context';
+                contextDiv.textContent = `Context: ${context}`;
+                div.appendChild(contextDiv);
+            }
+            messages.appendChild(div);
+            messages.scrollTop = messages.scrollHeight;
+        }
+    </script>
+</body>
+</html>
