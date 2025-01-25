@@ -1,38 +1,53 @@
-.App {
-  text-align: center;
+/* App.css */
+body {
+  font-family: Arial, sans-serif;
+  background-color: #121212; /* Dark background for the entire page */
+  color: #ffffff; /* Default text color */
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+/* Ensure the messages container takes up available space */
+.messages-container {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding: 10px;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+/* Customize scrollbar */
+.messages-container::-webkit-scrollbar {
+  width: 8px;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+.messages-container::-webkit-scrollbar-track {
+  background: #2c2c2c; /* Dark scrollbar track */
 }
 
-.App-link {
-  color: #61dafb;
+.messages-container::-webkit-scrollbar-thumb {
+  background: #555; /* Dark scrollbar thumb */
+  border-radius: 4px;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.messages-container::-webkit-scrollbar-thumb:hover {
+  background: #777; /* Lighter scrollbar thumb on hover */
+}
+
+/* Input field styling */
+.form-control {
+  background-color: #1e1e1e !important; /* Dark input background */
+  color: #ffffff !important; /* Light text color */
+  border: 1px solid #444 !important; /* Dark border */
+}
+
+.form-control:focus {
+  border-color: #666 !important; /* Lighter border on focus */
+  box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.1) !important; /* Subtle focus glow */
+}
+
+/* Button styling */
+.btn-primary {
+  background-color: #0d6efd; /* Bootstrap primary blue */
+  border: none;
+}
+
+.btn-primary:hover {
+  background-color: #0b5ed7; /* Slightly darker blue on hover */
 }
