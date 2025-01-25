@@ -98,10 +98,10 @@ Open_Source_AI_Hackathon/
 MIT License - See LICENSE for details
 
 ## 👥 Team
-Developed for Open Source AI Hackathon 2024 by Data Doppelgangers
+Developed for Open Source AI Hackathon 2024 by Data Doppelgangers (GitHub: @ivanye2509, @prabhatmenon, @patelmanan96, @solkit70)
 
 ## 🙏 Acknowledgments
 - OpenAI
 - LangChain Framework
 - Flask Community
-- Kaggle Community
+- Kaggle CommunityGit
