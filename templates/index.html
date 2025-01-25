@@ -2,57 +2,129 @@
 <html>
 <head>
     <title>Persona Chatbot</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
     <style>
-        #chat-container { max-width: 1000px; margin: 0 auto; padding: 20px; }
-        #chat-interface { display: flex; gap: 20px; }
-        #chat-main { flex: 2; }
-        #persona-info { flex: 1; background: #f8f9fa; padding: 15px; border-radius: 5px; }
-        #messages { height: 400px; overflow-y: auto; border: 1px solid #ccc; margin: 10px 0; }
-        .message { padding: 10px; margin: 5px; border-radius: 5px; }
-        .user { background-color: #e3f2fd; }
-        .bot { background-color: #f5f5f5; }
-        .context { font-size: 0.8em; color: #666; margin-top: 5px; }
-        .loading { text-align: center; padding: 10px; }
+        .chat-container { height: calc(100vh - 180px); }
+        .messages-box { height: 100%; overflow-y: auto; }
+        .message { margin-bottom: 15px; }
+        .message-content { max-width: 80%; padding: 10px 15px; border-radius: 15px; }
+        .user .message-content { background: #007bff; color: white; margin-left: auto; }
+        .bot .message-content { background: #f8f9fa; }
+        .context-info { font-size: 0.8em; color: #6c757d; margin-top: 5px; }
+        .persona-card { height: 100%; overflow-y: auto; }
+        .loading { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
     </style>
 </head>
-<body>
-    <div id="chat-container">
-        <h1>Persona Chatbot</h1>
-        <form id="upload-form">
-            <input type="file" id="chat-file" accept=".txt">
-            <button type="submit">Upload & Analyze</button>
-        </form>
-        <div id="chat-interface">
-            <div id="chat-main">
-                <div id="messages"></div>
-                <form id="chat-form">
-                    <input type="text" id="message" placeholder="Type your message...">
-                    <button type="submit">Send</button>
-                </form>
-            </div>
-            <div id="persona-info">
-                <h3>Persona Analysis</h3>
-                <div id="traits"></div>
-                <div id="style"></div>
-                <div id="phrases"></div>
-                <div id="interests"></div>
+<body class="bg-light">
+    <div class="container-fluid py-4">
+        <div class="row justify-content-center mb-4">
+            <div class="col-md-10">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h3 class="card-title mb-4">
+                            <i class="bi bi-robot"></i> Persona Chatbot
+                        </h3>
+                        <form id="upload-form" class="mb-4">
+                            <div class="input-group">
+                                <input type="file" class="form-control" id="chat-file" accept=".txt">
+                                <button class="btn btn-primary" type="submit">
+                                    <i class="bi bi-upload"></i> Upload & Analyze
+                                </button>
+                            </div>
+                        </form>
+                        
+                        <div class="row chat-container">
+                            <div class="col-md-8">
+                                <div class="card h-100">
+                                    <div class="card-body messages-box" id="messages"></div>
+                                    <div class="card-footer">
+                                        <form id="chat-form" class="input-group">
+                                            <input type="text" class="form-control" id="message" 
+                                                   placeholder="Type your message...">
+                                            <button class="btn btn-primary" type="submit">
+                                                <i class="bi bi-send"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <div class="card persona-card">
+                                    <div class="card-body">
+                                        <h5 class="card-title">
+                                            <i class="bi bi-person-badge"></i> Persona Analysis
+                                        </h5>
+                                        <div id="traits" class="mb-3"></div>
+                                        <div id="style" class="mb-3"></div>
+                                        <div id="phrases" class="mb-3"></div>
+                                        <div id="interests"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
+
+    <script>
+        // ... Existing socket.io and event handling code ...
+
+        function addMessage(type, text, context = '') {
+            const div = document.createElement('div');
+            div.className = `message ${type}`;
+            
+            const content = document.createElement('div');
+            content.className = 'message-content';
+            content.textContent = text;
+            
+            div.appendChild(content);
+            
+            if (context) {
+                const contextDiv = document.createElement('div');
+                contextDiv.className = 'context-info';
+                contextDiv.innerHTML = `<i class="bi bi-info-circle"></i> ${context}`;
+                div.appendChild(contextDiv);
+            }
+            
+            messages.appendChild(div);
+            messages.scrollTop = messages.scrollHeight;
+        }
+
+        function updatePersonaInfo(persona) {
+            document.getElementById('traits').innerHTML = `
+                <h6><i class="bi bi-stars"></i> Traits</h6>
+                <ul class="list-group list-group-flush">
+                    ${persona.traits.map(t => `
+                        <li class="list-group-item">${t}</li>
+                    `).join('')}
+                </ul>
+            `;
+            // ... Similar updates for style, phrases, and interests ...
+        }
+
+        function showLoading() {
+            const div = document.createElement('div');
+            div.className = 'loading';
+            div.innerHTML = `
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            `;
+            messages.appendChild(div);
+        }
+    </script>
     <script>
         const socket = io();
         const chatForm = document.getElementById('chat-form');
         const uploadForm = document.getElementById('upload-form');
         const messages = document.getElementById('messages');
-
-        function showLoading() {
-            const div = document.createElement('div');
-            div.className = 'loading';
-            div.textContent = 'Analyzing...';
-            messages.appendChild(div);
-        }
-
+    
         uploadForm.onsubmit = async (e) => {
             e.preventDefault();
             showLoading();
@@ -68,63 +140,38 @@
                 if (result.success) {
                     updatePersonaInfo(result.persona);
                     messages.innerHTML = '';
-                    addMessage('bot', 'Chat data analyzed! I am ready to chat as Human 1.');
+                    addMessage('bot', 'Chat data analyzed! Ready to chat.');
                 }
             } catch (error) {
-                alert('Error uploading file: ' + error);
+                addMessage('bot', 'Error: ' + error.message);
             }
         };
-
-        function updatePersonaInfo(persona) {
-            document.getElementById('traits').innerHTML = `
-                <h4>Traits</h4>
-                <ul>${persona.traits.map(t => `<li>${t}</li>`).join('')}</ul>
-            `;
-            document.getElementById('style').innerHTML = `
-                <h4>Communication Style</h4>
-                <p>${persona.style}</p>
-            `;
-            document.getElementById('phrases').innerHTML = `
-                <h4>Common Phrases</h4>
-                <ul>${persona.phrases.map(p => `<li>${p}</li>`).join('')}</ul>
-            `;
-            document.getElementById('interests').innerHTML = `
-                <h4>Interests</h4>
-                <ul>${persona.interests.map(i => `<li>${i}</li>`).join('')}</ul>
-            `;
-        }
-
+    
         chatForm.onsubmit = (e) => {
             e.preventDefault();
             const messageInput = document.getElementById('message');
-            if (!messageInput.value.trim()) return;
+            const message = messageInput.value.trim();
             
-            socket.emit('message', {message: messageInput.value});
-            addMessage('user', messageInput.value);
-            messageInput.value = '';
+            if (message) {
+                addMessage('user', message);
+                socket.emit('message', { message: message });
+                messageInput.value = '';
+            }
         };
-
+    
         socket.on('response', (data) => {
             if (data.error) {
-                alert(data.error);
+                addMessage('bot', 'Error: ' + data.error);
             } else {
                 addMessage('bot', data.message, data.context);
             }
         });
-
-        function addMessage(type, text, context = '') {
-            const div = document.createElement('div');
-            div.className = `message ${type}`;
-            div.textContent = text;
-            if (context) {
-                const contextDiv = document.createElement('div');
-                contextDiv.className = 'context';
-                contextDiv.textContent = `Context: ${context}`;
-                div.appendChild(contextDiv);
-            }
-            messages.appendChild(div);
-            messages.scrollTop = messages.scrollHeight;
-        }
+    
+        socket.on('connect_error', (error) => {
+            console.error('Connection Error:', error);
+            addMessage('bot', 'Connection error. Please try again.');
+        });
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

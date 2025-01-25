@@ -1,13 +1,12 @@
 from flask import Flask, render_template, request, jsonify
 from flask_socketio import SocketIO, emit
 from persona_chatbot import PersonaChatbot
-import os
+import json
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your-secret-key'
-socketio = SocketIO(app)
+socketio = SocketIO(app, cors_allowed_origins="*")
 
-# Global chatbot instance
 chatbot = None
 
 @app.route('/')
@@ -23,7 +22,7 @@ def upload_file():
     if file.filename == '':
         return jsonify({'error': 'No file selected'}), 400
     
-    if file:
+    try:
         file.save('human_chat.txt')
         global chatbot
         chatbot = PersonaChatbot()
@@ -31,6 +30,8 @@ def upload_file():
             'success': True,
             'persona': chatbot.persona
         })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 @socketio.on('message')
 def handle_message(data):
@@ -40,7 +41,7 @@ def handle_message(data):
     
     try:
         response = chatbot.generate_response(data['message'])
-        context = chatbot.get_last_context()  # Add this method to PersonaChatbot class
+        context = chatbot.get_last_context()
         emit('response', {
             'message': response,
             'context': context
