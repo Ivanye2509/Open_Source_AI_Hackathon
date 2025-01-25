@@ -75,3 +75,33 @@ python app.py
 - Open browser to http://localhost:5000
 - Upload chat history file
 - Start conversation
+
+## 💻 Technologies
+- Frontend: Bootstrap 5, Socket.IO
+- Backend: Flask, Flask-SocketIO
+- AI/ML: LangChain, OpenAI GPT-4
+Vector Store: ChromaDB
+Embeddings: OpenAI Ada
+
+## 📁 Project Structure
+```
+Open_Source_AI_Hackathon/
+├── app.py              # Flask server
+├── persona_chatbot.py  # Core RAG logic
+├── templates/          # Frontend
+│   └── index.html     # Chat interface
+├── requirements.txt    # Dependencies
+└── README.md          # Documentation
+```
+
+## 📄 License
+MIT License - See LICENSE for details
+
+## 👥 Team
+Developed for Open Source AI Hackathon 2024 by Data Doppelgangers
+
+## 🙏 Acknowledgments
+- OpenAI
+- LangChain Framework
+- Flask Community
+- Kaggle Community
