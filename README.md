@@ -80,8 +80,8 @@ python app.py
 - Frontend: Bootstrap 5, Socket.IO
 - Backend: Flask, Flask-SocketIO
 - AI/ML: LangChain, OpenAI GPT-4
-Vector Store: ChromaDB
-Embeddings: OpenAI Ada
+- Vector Store: ChromaDB
+- Embeddings: OpenAI Ada
 
 ## 📁 Project Structure
 ```
