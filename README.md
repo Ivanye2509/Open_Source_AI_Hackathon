@@ -34,6 +34,14 @@ graph TD
         PS --> RG
         PP --> RG
     end
+
+    subgraph Response Pipeline
+        RG --> RM[Response Matching]
+        RM --> EX[Exact Match]
+        RM --> SM[Similar Match]
+        EX --> FR[Final Response]
+        SM --> FR
+    end
 ```
 
 ## ✨ Features
